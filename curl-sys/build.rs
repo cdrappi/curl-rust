@@ -524,9 +524,14 @@ fn try_vcpkg() -> bool {
 fn try_pkg_config() -> bool {
     let mut cfg = pkg_config::Config::new();
     cfg.cargo_metadata(false);
+
+    // let cmd = cfg.command("pkgconf", "libcurl", &["--libs", "--cflags"]);
+    // println!("cargo:warning=pkgconf command:{:?}", cmd);
+
     let lib = match cfg.probe("libcurl") {
         Ok(lib) => lib,
         Err(e) => {
+            println!("cargo:warning=compiling libcurl from source");
             println!(
                 "Couldn't find libcurl from pkgconfig ({:?}), \
                  compiling it from source...",
@@ -535,7 +540,8 @@ fn try_pkg_config() -> bool {
             return false;
         }
     };
-
+    
+    println!("cargo:warning=found libcurl: {:?}", lib);
     // Not all system builds of libcurl have http2 features enabled, so if we've
     // got a http2-requested build then we may fall back to a build from source.
     if cfg!(feature = "http2") && !curl_config_reports_http2() {
@@ -546,6 +552,7 @@ fn try_pkg_config() -> bool {
     // metadata as well.
     cfg.cargo_metadata(true).probe("libcurl").unwrap();
     for path in lib.include_paths.iter() {
+        println!("cargo:warning=include={}", path.display());
         println!("cargo:include={}", path.display());
     }
     true
