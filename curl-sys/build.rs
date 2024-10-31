@@ -4,8 +4,6 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn main() {
-    println!("cargo:rerun-if-changed=src");
-    println!("cargo:warning=compiling libcurl from source");
     println!("cargo:rerun-if-changed=curl");
     println!(
         "cargo:rustc-check-cfg=cfg(\
